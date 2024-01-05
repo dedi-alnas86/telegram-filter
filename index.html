@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TELEGRAM FILTER SUDIRMAN BOSQ</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <!-- Custom CSS -->
+  <style>
+    .result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>TELEGRAM FILTER BY SUDIRMAN BOSQ</h2>
+    <form id="phoneNumberForm">
+      <div class="form-group">
+        <label for="countryCode">Negara:</label>
+        <select class="form-control" id="countryCode"></select>
+      </div>
+      <div class="form-group">
+        <label for="triggerNumber">Nomor HP Pemicu:</label>
+        <input type="tel" class="form-control" id="triggerNumber" placeholder="Masukkan nomor pemicu">
+        <small id="triggerNumberHelp" class="form-text text-danger"></small>
+      </div>
+      <div class="form-group">
+        <label for="quantity">Jumlah Nomor HP:</label>
+        <input type="number" class="form-control" id="quantity" placeholder="Masukkan jumlah">
+      </div>
+      <button type="button" class="btn btn-primary" onclick="generateNumbers()">INJECT</button>
+    </form>
+
+    <div class="result">
+      <h4>Hasil:</h4>
+      <textarea id="phoneNumberResult" class="form-control" rows="5" readonly></textarea>
+      <button class="btn btn-secondary mt-2" onclick="copyToClipboard()">Copy</button>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS and Popper.js -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <script>
+    // Mendapatkan daftar negara dari layanan Rest Countries
+    fetch('https://restcountries.com/v3.1/all')
+      .then(response => response.json())
+      .then(data => {
+        const countryCodeSelect = document.getElementById('countryCode');
+        data.forEach(country => {
+          const option = document.createElement('option');
+          option.value = country.cca2;
+          option.textContent = country.name.common;
+          countryCodeSelect.appendChild(option);
+        });
+      });
+
+    function generateNumbers() {
+      const countryCodeInput = document.getElementById('countryCode');
+      const triggerInput = document.getElementById('triggerNumber');
+      const quantityInput = document.getElementById('quantity');
+      const phoneNumberResult = document.getElementById('phoneNumberResult');
+      const triggerNumberHelp = document.getElementById('triggerNumberHelp');
+      phoneNumberResult.value = '';
+
+      const countryCode = countryCodeInput.value;
+      const triggerNumber = triggerInput.value.trim();
+      const quantity = parseInt(quantityInput.value);
+
+      if (triggerNumber.length < 10) {
+        triggerNumberHelp.textContent = 'Nomor HP pemicu harus memiliki setidaknya 10 digit.';
+        return;
+      } else {
+        triggerNumberHelp.textContent = '';
+      }
+
+      for (let i = 0; i < quantity; i++) {
+        const phoneNumber = parseInt(triggerNumber) + i;
+        phoneNumberResult.value += `+${countryCode}${phoneNumber}\n`;
+      }
+    }
+
+    function copyToClipboard() {
+      const phoneNumberResult = document.getElementById('phoneNumberResult');
+      phoneNumberResult.select();
+      document.execCommand('copy');
+    }
+  </script>
+
+</body>
+</html>
